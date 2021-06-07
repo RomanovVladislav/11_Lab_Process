@@ -1,9 +1,7 @@
-//
-// Created by vlad on 07.06.2021.
-//
+// Copyright 2021 <Vladislav>
 
-#ifndef INC_11_LAB_PROCESS_BUILDER_HPP
-#define INC_11_LAB_PROCESS_BUILDER_HPP
+#ifndef INCLUDE_BUILDER_HPP_
+#define INCLUDE_BUILDER_HPP_
 
 #include <async++.h>
 #include <boost/program_options.hpp>
@@ -35,4 +33,4 @@ class Builder {
   int errorComp = 0;
 };
 
-#endif  // INC_11_LAB_PROCESS_BUILDER_HPP
+#endif  // INCLUDE_BUILDER_HPP_

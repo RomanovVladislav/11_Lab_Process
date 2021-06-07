@@ -1,6 +1,5 @@
-//
-// Created by vlad on 07.06.2021.
-//
+// Copyright 2021 <Vladislav>
+
 #include "Builder.hpp"
 #include <boost/process.hpp>
 
@@ -44,12 +43,15 @@ const std::list<std::string> Builder::getArgs(int proc)
   }
 }
 
-void Process(std::unique_ptr<bp::child>& process, std::list<std::string>& args, int& flag)
+void Process(std::unique_ptr<bp::child>& process, std::list<std::string>& args,
+             int& flag)
 {
   if (flag != 0) return;
 
   bp::ipstream pipe_stream;
-  process = std::make_unique<bp::child>(bp::child{bp::search_path("cmake"), bp::args(args), bp::std_out > pipe_stream});
+  process = std::make_unique<bp::child>
+      (bp::child{bp::search_path("cmake"), bp::args(args),
+                 bp::std_out > pipe_stream});
 
   for (std::string line; process->running() && std::getline(pipe_stream, line);)
     std::cout << line << std::endl;
@@ -60,12 +62,15 @@ void Process(std::unique_ptr<bp::child>& process, std::list<std::string>& args, 
 
 int Builder::initBuild(int argc, char **argv)
 {
-  po::options_description desc("Usage: builder [options]\nAllowed options");
+  po::options_description desc
+      ("Usage: builder [options]\nAllowed options");
   desc.add_options()("help", "produce help message")
-      ("config", po::value<std::string>(&buildConfig), "Specify the build configuration (default is Debug)")
+      ("config", po::value<std::string>(&buildConfig),
+          "Specify the build configuration (default is Debug)")
       ("install", "Add step of install (to the directory _install)")
       ("pack", "Add step of packing (to the archive tar.gz format)")
-      ("timeout", po::value<time_t>(&timeout),"Set a waiting time");
+      ("timeout", po::value<time_t>(&timeout),
+          "Set a waiting time");
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -97,19 +102,24 @@ int Builder::initBuild(int argc, char **argv)
 
 int Builder::startBuild()
 {
-  auto timer = async::spawn(std::bind(&timeCounter,std::ref(timeout),std::ref(process)));
-  auto task1 = async::spawn(std::bind(&Process,std::ref(process),getArgs(0),std::ref(errorComp)));
+  auto timer = async::spawn(std::bind(&timeCounter,
+      std::ref(timeout),std::ref(process)));
+  auto task1 = async::spawn(std::bind(&Process,
+      std::ref(process),getArgs(0),std::ref(errorComp)));
   task1.wait();
-  auto task2 = task1.then(std::bind(&Process,std::ref(process),getArgs(1),std::ref(errorComp)));
+  auto task2 = task1.then(std::bind(&Process,
+      std::ref(process),getArgs(1),std::ref(errorComp)));
 
   if (isInstall)
   {
-    task2 = task2.then(std::bind(&Process,std::ref(process),getArgs(2),std::ref(errorComp)));
+    task2 = task2.then(std::bind(&Process,
+         std::ref(process),getArgs(2),std::ref(errorComp)));
   }
 
   if (isPack)
   {
-    task2 = task2.then(std::bind(&Process,std::ref(process),getArgs(3),std::ref(errorComp)));
+    task2 = task2.then(std::bind(&Process,
+         std::ref(process),getArgs(3),std::ref(errorComp)));
   }
 
   task2.wait();
