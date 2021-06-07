@@ -103,28 +103,25 @@ int Builder::initBuild(int argc, char **argv)
 int Builder::startBuild()
 {
   auto timer = async::spawn(std::bind(&timeCounter,
-      std::ref(timeout),std::ref(process)));
+      std::ref(timeout), std::ref(process)));
 
   auto task1 = async::spawn(std::bind(&Process,
-      std::ref(process),getArgs(0),std::ref(errorComp)));
+      std::ref(process), getArgs(0), std::ref(errorComp)));
 
   task1.wait();
   auto task2 = task1.then(std::bind(&Process,
-      std::ref(process),getArgs(1),std::ref(errorComp)));
-
+      std::ref(process), getArgs(1), std::ref(errorComp)));
 
   if (isInstall)
   {
     task2 = task2.then(std::bind(&Process,
-         std::ref(process),getArgs(2),std::ref(errorComp)));
-
+         std::ref(process), getArgs(2), std::ref(errorComp)));
   }
 
   if (isPack)
   {
     task2 = task2.then(std::bind(&Process,
-         std::ref(process),getArgs(3),std::ref(errorComp)));
-
+         std::ref(process), getArgs(3), std::ref(errorComp)));
   }
 
   task2.wait();
